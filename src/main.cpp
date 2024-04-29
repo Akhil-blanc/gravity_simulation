@@ -9,11 +9,69 @@ using namespace std;
 
 GLfloat Rotation = 0.0f;
 Sphere Sun("./assets/2k_earth_daymap.jpg", 3.0f, 0.0f, 0.0f, 0.0f, 2.4f);
-Sphere Mercury("./assets/2k_earth_daymap.jpg", 0.3f, 4.0f, 0.0f, 0.0f, 5.4f);
-Sphere Venus("./assets/2k_earth_daymap.jpg", 0.9f, 7.0f, 0.0f, 0.0f, 5.2f);
+// Sphere Mercury("./assets/2k_earth_daymap.jpg", 0.3f, 4.0f, 0.0f, 0.0f, 5.4f);
+Sphere Venus("./assets/2k_earth_daymap.jpg", 0.9f, 7.0f, 0.0f, 0.0f, 8.2f);
 Sphere Earth("./assets/2k_earth_daymap.jpg", 1.0f, 10.0f, 0.0f, 0.0f, 5.1f);
-float G = 6.674e-11; // Gravitational constant
+float G = 6.674e-5; // Gravitational constant
+float angle;
+float a = 6.0f;
+float b = 4.0f;
+float beta = 2.0f * M_PI / 180.0f;
 
+void update_planet_position(Sphere &planet, Sphere &sun, float a, float b, float beta) {
+    float distance = sqrt(pow(planet.x - sun.x, 2) + pow(planet.y - sun.y, 2) + pow(planet.z - sun.z, 2));
+    float force = G * planet.mass * sun.mass / pow(distance, 2);
+    float acceleration = force / planet.mass;
+    float vx = acceleration * (sun.x - planet.x) / distance;
+    float vy = acceleration * (sun.y - planet.y) / distance;
+    float vz = acceleration * (sun.z - planet.z) / distance;
+    planet.vx += vx;
+    planet.vy += vy;
+    planet.vz += vz;
+    angle += 5.0f * (acceleration);
+
+    if (angle > 2 * 3.14159265359) // Reset angle to keep object moving in loop
+        angle -= 2 * 3.14159265359;
+    planet.x = a * cos(angle) * cos(beta);
+    planet.y = a * cos(angle) * sin(beta);
+    planet.z = b * sin(angle);
+}
+
+void drawEllipse(float a, float b, float beta) {
+    glColor3f(1.0f, 1.0f, 1.0f); // Set color to white
+
+    glBegin(GL_LINE_LOOP);
+    for (int theta = 0; theta <= 360; theta++) {
+        float radians = theta * M_PI / 180.0f;
+        float x = a * cos(radians) * cos(beta);
+        float y = a * cos(radians) * sin(beta);
+        float z = b * sin(radians);
+        glVertex3f(x, y, z);
+    }
+    glEnd();
+}
+
+
+void drawAxis(float size) {
+    glBegin(GL_LINES);
+
+    // X axis in red
+    glColor3f(1.0f, 0.0f, 0.0f);
+    glVertex3f(0.0f, 0.0f, 0.0f);
+    glVertex3f(size, 0.0f, 0.0f);
+
+    // Y axis in green
+    glColor3f(0.0f, 1.0f, 0.0f);
+    glVertex3f(0.0f, 0.0f, 0.0f);
+    glVertex3f(0.0f, size, 0.0f);
+
+    // Z axis in blue
+    glColor3f(0.0f, 0.0f, 1.0f);
+    glVertex3f(0.0f, 0.0f, 0.0f);
+    glVertex3f(0.0f, 0.0f, size);
+
+    glEnd();
+}
 
 void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -59,16 +117,21 @@ void display() {
     gluPerspective(45.0f, static_cast<float>(width) / static_cast<float>(height), 0.1f, 100.0f);
     
     glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-
     
+    glLoadIdentity();
     glTranslatef(0.0f, 0.0f, -cameraDistance);
     glRotatef(cameraAngleX, 1.0f, 0.0f, 0.0f);
     glRotatef(cameraAngleY, 0.0f, 1.0f, 0.0f);
 
-    gluLookAt(0.0, 0.0, 25,  // eye position
-                  0.0, 0.0, -1.0,  // look at position
+    gluLookAt(0.0, 2.0, 25,  // eye position
+                  0.0, 0.0, 0.0,  // look at position
                   0.0, 1.0, 0.0); // up direction
+
+    // gluLookAt(0.0, 15.0, 0.0,  // eye position
+    //               0.0, 0.0, 0.0,  // look at position
+    //               0.0, 0.0, -1.0); // up direction
+
+
 
     glEnable(GL_TEXTURE_2D);
     Sun.draw(30, 30);
@@ -77,18 +140,26 @@ void display() {
 
     glPushMatrix(); // Save the current matrix
     glRotatef(Rotation, 0.0f, 1.0f, 0.0f); // Rotate 
-    Mercury.draw(30, 30);
+    // Mercury.draw(30, 30);
     glPopMatrix(); // Restore the current matrix
 
     glPushMatrix(); // Save the current matrix
-    glRotatef(Rotation, 0.0f, 1.0f, 0.0f); // Rotate 
+    drawEllipse(a+3, b+1, beta+2.0f * M_PI / 180.0f);
+    // glRotatef(Rotation, 0.0f, 1.0f, 0.0f); // Rotate
+    update_planet_position(Venus, Sun, a+3, b+1, beta+2.0f * M_PI / 180.0f); 
     Venus.draw(30, 30);
     glPopMatrix(); // Restore the current matrix
     
     glPushMatrix(); // Save the current matrix
-    glRotatef(Rotation, 0.0f, 1.0f, 0.0f); // Rotate 
+    drawEllipse(a, b, beta);
+    // glRotatef(Rotation, 0.0f, 1.0f, 0.0f); // Rotate 
+    update_planet_position(Earth, Sun, a, b, beta);
     Earth.draw(30, 30);
     glPopMatrix(); // Restore the current matrix
+    glFlush();
+
+    // glLoadIdentity();
+    
 
     glutSwapBuffers();
 }
