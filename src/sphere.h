@@ -9,9 +9,14 @@
 class Sphere {
 public:
     GLuint textureID; // Texture ID
-
-    Sphere(const char* filename);
-    void draw(GLfloat radius, GLint slices, GLint stacks, GLfloat x, GLfloat y, GLfloat z);
+    GLfloat radius;
+    GLfloat x;
+    GLfloat y;
+    GLfloat z;
+    GLfloat density;
+    GLfloat mass;
+    Sphere(const char* filename, GLfloat radius, GLfloat x, GLfloat y, GLfloat z, GLfloat density);
+    void draw(GLint slices, GLint stacks);
 };
 
 #endif // SPHERE_H
