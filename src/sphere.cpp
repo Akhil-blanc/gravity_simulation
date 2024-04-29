@@ -2,12 +2,12 @@
 #include "sphere.h"
 
 Sphere::Sphere(const char* filename, GLfloat radius, GLfloat x, GLfloat y, GLfloat z, GLfloat density) {
-    textureID = SOIL_load_OGL_texture(
-        filename,
-        SOIL_LOAD_AUTO,
-        SOIL_CREATE_NEW_ID,
-        SOIL_FLAG_INVERT_Y
-    );
+    // textureID = SOIL_load_OGL_texture(
+    //     filename,
+    //     SOIL_LOAD_AUTO,
+    //     SOIL_CREATE_NEW_ID,
+    //     SOIL_FLAG_INVERT_Y
+    // );
 
     this->radius = radius;
     this->x = x;
@@ -20,21 +20,21 @@ Sphere::Sphere(const char* filename, GLfloat radius, GLfloat x, GLfloat y, GLflo
     this->density = density;
     this->mass = 4.0f / 3.0f * 3.14159f * radius * radius * radius * density;
 
-    if (textureID == 0) {
-        std::cerr << "Error loading texture image: " << SOIL_last_result() << std::endl;
-        return;
-    }
-
-    glBindTexture(GL_TEXTURE_2D, textureID);
+    // if (textureID == 0) {
+    //     std::cerr << "Error loading texture image: " << SOIL_last_result() << std::endl;
+    //     return;
+    // }
 
     // Set texture parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
 void Sphere::draw(GLint slices, GLint stacks) {
+    // glEnable(GL_TEXTURE_2D);
+    // glBindTexture(GL_TEXTURE_2D, textureID);
     GLUquadric* quadric = gluNewQuadric();
     gluQuadricTexture(quadric, GL_TRUE);
 
@@ -44,4 +44,5 @@ void Sphere::draw(GLint slices, GLint stacks) {
     glPopMatrix(); // Restore the original matrix
 
     gluDeleteQuadric(quadric);
+    // glDisable(GL_TEXTURE_2D);
 }

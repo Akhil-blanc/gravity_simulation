@@ -8,15 +8,35 @@
 using namespace std;
 
 GLfloat Rotation = 0.0f;
-Sphere Sun("./assets/2k_earth_daymap.jpg", 3.0f, 0.0f, 0.0f, 0.0f, 2.4f);
+Sphere Sun("2k_earth_daymap.jpg", 3.0f, 0.0f, 0.0f, 0.0f, 2.4f);
 // Sphere Mercury("./assets/2k_earth_daymap.jpg", 0.3f, 4.0f, 0.0f, 0.0f, 5.4f);
-Sphere Venus("./assets/2k_earth_daymap.jpg", 0.9f, 7.0f, 0.0f, 0.0f, 8.2f);
-Sphere Earth("./assets/2k_earth_daymap.jpg", 1.0f, 10.0f, 0.0f, 0.0f, 5.1f);
+Sphere Venus("2k_earth_daymap.jpg", 0.9f, 7.0f, 0.0f, 0.0f, 8.2f);
+Sphere Earth("2k_earth_daymap.jpg", 1.0f, 10.0f, 0.0f, 0.0f, 5.1f);
 float G = 6.674e-5; // Gravitational constant
 float angle;
 float a = 6.0f;
 float b = 4.0f;
 float beta = 2.0f * M_PI / 180.0f;
+
+void init();
+void update(int value);
+void display();
+void drawEllipse(float a, float b, float beta);
+void drawAxis(float size);
+
+
+void loadTexture(const char* filename, GLuint &objectTexture) {
+    objectTexture = SOIL_load_OGL_texture(
+        filename,
+        SOIL_LOAD_AUTO,
+        SOIL_CREATE_NEW_ID,
+        SOIL_FLAG_INVERT_Y
+    );
+
+    if (!objectTexture) {
+        std::cerr << "Error loading texture: " << SOIL_last_result() << std::endl;
+    }
+}
 
 void update_planet_position(Sphere &planet, Sphere &sun, float a, float b, float beta) {
     float distance = sqrt(pow(planet.x - sun.x, 2) + pow(planet.y - sun.y, 2) + pow(planet.z - sun.z, 2));
@@ -75,11 +95,12 @@ void drawAxis(float size) {
 
 void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glEnable(GL_DEPTH_TEST);
+    // glEnable(GL_DEPTH_TEST);
 
-    glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT0);
-
+    // glEnable(GL_LIGHTING);
+    // glEnable(GL_LIGHT0);
+    init();
+    
     // Define light properties
     GLfloat light_position[] = { 0.0, 0.0, 0.0, 1.0 };
     GLfloat light_diffuse[] = { 1.0, 1.0, 0.0, 1.0 }; // Yellow light
@@ -134,8 +155,14 @@ void display() {
 
 
     glEnable(GL_TEXTURE_2D);
+    GLuint SunTexture;
+    loadTexture("2k_earth_daymap.jpg", SunTexture);
+    glBindTexture(GL_TEXTURE_2D, SunTexture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     Sun.draw(30, 30);
-    glBindTexture(GL_TEXTURE_2D, Sun.textureID);
     glDisable(GL_TEXTURE_2D);
 
     glPushMatrix(); // Save the current matrix
@@ -202,7 +229,7 @@ int main(int argc, char** argv) {
     glutInitWindowSize(800, 600);
     glutCreateWindow("Textured Sphere");
 
-    init(); // Initialize OpenGL
+    //init(); // Initialize OpenGL
     glutDisplayFunc(display);
     glutMouseFunc(handleMouse);
     glutMotionFunc(handleMouseMove);
