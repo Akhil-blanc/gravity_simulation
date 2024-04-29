@@ -1,38 +1,13 @@
 #include <GL/glut.h>
 #include <iostream>
 #include <SOIL/SOIL.h> // Include SOIL for image loading
+#include "sphere.h"
+#include "mouseHandler.h"
 using namespace std;
 
-GLuint textureID; // Texture ID
 
-void loadTexture(const char* filename) {
-    textureID = SOIL_load_OGL_texture(
-        filename,
-        SOIL_LOAD_AUTO,
-        SOIL_CREATE_NEW_ID,
-        SOIL_FLAG_INVERT_Y
-    );
-
-    if (textureID == 0) {
-        cerr << "Error loading texture image: " << SOIL_last_result() << endl;
-        return;
-    }
-
-    glBindTexture(GL_TEXTURE_2D, textureID);
-
-    // Set texture parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-}
-
-void drawSphere(GLfloat radius, GLint slices, GLint stacks) {
-    GLUquadric* quadric = gluNewQuadric();
-    gluQuadricTexture(quadric, GL_TRUE);
-    gluSphere(quadric, radius, slices, stacks);
-    gluDeleteQuadric(quadric);
-}
+Sphere earth("assets/2k_earth_daymap.jpg");
+Sphere mercury("assets/2k_earth_daymap.jpg");
 
 void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -52,19 +27,22 @@ void display() {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
+
+    glTranslatef(0.0f, 0.0f, -cameraDistance);
+    glRotatef(cameraAngleX, 0.0f, 1.0f, 0.0f);
+    glRotatef(cameraAngleY, 1.0f, 0.0f, 0.0f);
+    
     gluLookAt(0.0, 0.0, 1.75,  // eye position
                   0.0, 0.0, -1.0,  // look at position
                   0.0, 1.0, 0.0); // up direction
 
-    // glTranslatef(0.0f, 0.0f, -1.5f); // Move the sphere back
-
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, textureID);
-
-    drawSphere(0.3f, 30, 30); // Draw a sphere with radius 1.0
-
+    earth.draw(0.3f, 30, 30, 0.0f, 0.0f, 0.0f);
+    glBindTexture(GL_TEXTURE_2D, earth.textureID);
     glDisable(GL_TEXTURE_2D);
 
+    mercury.draw(0.1f, 30, 30, 0.5f, 0.5f, 0.0f);
+    
     glutSwapBuffers();
 }
 
@@ -76,9 +54,6 @@ void init() {
     glEnable(GL_TEXTURE_2D);
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set clear color to black
-
-    // Load the texture
-    loadTexture("assets/2k_earth_daymap.jpg");
 }
 
 int main(int argc, char** argv) {
@@ -88,8 +63,9 @@ int main(int argc, char** argv) {
     glutCreateWindow("Textured Sphere");
 
     init(); // Initialize OpenGL
-
     glutDisplayFunc(display);
+    glutMouseFunc(handleMouse);
+    glutMotionFunc(handleMouseMove);
 
     glutMainLoop();
     return 0;
