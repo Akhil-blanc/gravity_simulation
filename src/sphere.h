@@ -15,6 +15,10 @@ public:
     GLfloat z;
     GLfloat density;
     GLfloat mass;
+    GLfloat vx;
+    GLfloat vy;
+    GLfloat vz;
+    
     Sphere(const char* filename, GLfloat radius, GLfloat x, GLfloat y, GLfloat z, GLfloat density);
     void draw(GLint slices, GLint stacks);
 };

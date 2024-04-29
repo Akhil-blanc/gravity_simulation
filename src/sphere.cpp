@@ -13,6 +13,10 @@ Sphere::Sphere(const char* filename, GLfloat radius, GLfloat x, GLfloat y, GLflo
     this->x = x;
     this->y = y;
     this->z = z;
+
+    this->vx = 0.0f;
+    this->vy = 0.0f;
+    this->vz = 0.0f;
     this->density = density;
     this->mass = 4.0f / 3.0f * 3.14159f * radius * radius * radius * density;
 

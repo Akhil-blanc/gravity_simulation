@@ -1,20 +1,51 @@
 #include <GL/glut.h>
 #include <iostream>
-#include <SOIL/SOIL.h> // Include SOIL for image loading
+#include <SOIL/SOIL.h>
+#include <cmath>
 #include "sphere.h"
 #include "mouseHandler.h"
-
+#include "LightSource.h"
 using namespace std;
 
 GLfloat Rotation = 0.0f;
-Sphere Sun("./assets/2k_earth_daymap.jpg", 0.3f, 0.0f, 0.0f, 0.0f, 0.0f);
-Sphere Mercury("./assets/2k_earth_daymap.jpg", 0.1f, 0.5f, 0.0f, 0.0f, 0.0f);
-Sphere Venus("./assets/2k_earth_daymap.jpg", 0.12f, 0.9f, 0.0f, 0.0f, 0.0f);
+Sphere Sun("./assets/2k_earth_daymap.jpg", 3.0f, 0.0f, 0.0f, 0.0f, 2.4f);
+Sphere Mercury("./assets/2k_earth_daymap.jpg", 0.3f, 4.0f, 0.0f, 0.0f, 5.4f);
+Sphere Venus("./assets/2k_earth_daymap.jpg", 0.9f, 7.0f, 0.0f, 0.0f, 5.2f);
+Sphere Earth("./assets/2k_earth_daymap.jpg", 1.0f, 10.0f, 0.0f, 0.0f, 5.1f);
+float G = 6.674e-11; // Gravitational constant
 
 
 void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
+
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+
+    // Define light properties
+    GLfloat light_position[] = { 0.0, 0.0, 0.0, 1.0 };
+    GLfloat light_diffuse[] = { 1.0, 1.0, 0.0, 1.0 }; // Yellow light
+    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+
+    // Set light attenuation
+    GLfloat constantAttenuation = 0.2;
+    GLfloat linearAttenuation = 0.1f;
+    GLfloat quadraticAttenuation = 0.01f;
+    glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, constantAttenuation);
+    glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, linearAttenuation);
+    glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, quadraticAttenuation);
+
+
+    // Define material properties for the Sun
+    GLfloat mat_ambient[] = { 0.0, 0.0, 0.0, 1.0 };
+    GLfloat mat_diffuse[] = { 1.0, 1.0, 0.0, 1.0 }; // Yellow color
+    GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+    GLfloat mat_shininess[] = { 50.0 };
+    glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+    glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
 
     glMatrixMode(GL_PROJECTION);
     int width = glutGet(GLUT_WINDOW_WIDTH);
@@ -30,12 +61,12 @@ void display() {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-
+    
     glTranslatef(0.0f, 0.0f, -cameraDistance);
-    glRotatef(cameraAngleX, 0.0f, 1.0f, 0.0f);
-    glRotatef(cameraAngleY, 1.0f, 0.0f, 0.0f);
+    glRotatef(cameraAngleX, 1.0f, 0.0f, 0.0f);
+    glRotatef(cameraAngleY, 0.0f, 1.0f, 0.0f);
 
-    gluLookAt(0.0, 0.0, 1.75,  // eye position
+    gluLookAt(0.0, 0.0, 25,  // eye position
                   0.0, 0.0, -1.0,  // look at position
                   0.0, 1.0, 0.0); // up direction
 
@@ -50,10 +81,15 @@ void display() {
     glPopMatrix(); // Restore the current matrix
 
     glPushMatrix(); // Save the current matrix
-    glRotatef(Rotation*1.2, 0.0f, 1.0f, 0.0f); // Rotate 
+    glRotatef(Rotation, 0.0f, 1.0f, 0.0f); // Rotate 
     Venus.draw(30, 30);
     glPopMatrix(); // Restore the current matrix
     
+    glPushMatrix(); // Save the current matrix
+    glRotatef(Rotation, 0.0f, 1.0f, 0.0f); // Rotate 
+    Earth.draw(30, 30);
+    glPopMatrix(); // Restore the current matrix
+
     glutSwapBuffers();
 }
 
