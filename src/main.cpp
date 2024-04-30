@@ -32,7 +32,8 @@ vector<Sphere*> planets;
 
 // Sphere(GLfloat radius, GLfloat x, GLfloat y, GLfloat z, GLfloat mass)
 Sphere Sun = Sphere(30, 0.0f, 0.0f, 0.0f, 500);
-Sphere Earth = Sphere(10, 50.0f, 0.0f, 0.0f, 0.1033);
+Sphere Earth = Sphere(20, 50.0f, 0.0f, 0.0f, 0.1033);
+Sphere Mars = Sphere(10, 25.0f, 0.0f, 0.0f, 0.5825);
 
 // void update_planet_position(Sphere &planet, Sphere &sun, float a, float b, float beta) {
 //     float distance = sqrt(pow(planet.x - sun.x, 2) + pow(planet.y - sun.y, 2) + pow(planet.z - sun.z, 2));
@@ -109,7 +110,7 @@ void display() {
     
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(45.0f, static_cast<float>(width) / static_cast<float>(height), 0.1f, 100.0f);
+    gluPerspective(45.0f, static_cast<float>(width) / static_cast<float>(height), 0.1f, 200.0f);
     
     glMatrixMode(GL_MODELVIEW);
     
@@ -118,18 +119,18 @@ void display() {
     glRotatef(cameraAngleX, 1.0f, 0.0f, 0.0f);
     glRotatef(cameraAngleY, 0.0f, 1.0f, 0.0f);
 
-    gluLookAt(0.0, 15.0, 115,  // eye position
+    gluLookAt(0.0, 15.0, 125,  // eye position
                   0.0, 0.0, 0.0,  // look at position
                   0.0, 1.0, 0.0); // up direction
 
-    // gluLookAt(0.0, 105.0, 0.0,  // eye position
+    // gluLookAt(-5.0, 145.0, 0.0,  // eye position
     //               0.0, 0.0, 0.0,  // look at position
     //               0.0, 0.0, -1.0); // up direction
 
 
     for (Sphere* planet: planets)
     {
-        // planet->draw(30, 30);  
+        planet->draw(30, 30);  
         glDisable(GL_DEPTH_TEST);  
         planet->draw_trace();  
         glEnable(GL_DEPTH_TEST);
@@ -143,15 +144,15 @@ void display() {
 
 
     // // Sun.draw(30, 30);
-    GLuint SunTexture;
-    loadTexture("../assets/2k_sun.jpg", SunTexture);
-    draw_texturedobject(SunTexture, Sun, 30, 30);
+    // GLuint SunTexture;
+    // loadTexture("../assets/2k_sun.jpg", SunTexture);
+    // draw_texturedobject(SunTexture, Sun, 30, 30);
 
     
-    GLuint EarthTexture;
-    loadTexture("../assets/2k_earth_daymap.jpg", EarthTexture);
-    draw_texturedobject(EarthTexture, Earth, 30, 30);
-    Earth.draw(30, 30);
+    // GLuint EarthTexture;
+    // loadTexture("../assets/2k_earth_daymap.jpg", EarthTexture);
+    // draw_texturedobject(EarthTexture, Earth, 30, 30);
+    // Earth.draw(30, 30);
 
     glFlush();
     glutSwapBuffers();
@@ -192,13 +193,15 @@ void init() {
 int main(int argc, char** argv) {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-    glutInitWindowSize(800, 600);
+    glutInitWindowSize(1920, 1080);
     glutCreateWindow("Textured Sphere");
     planets.push_back(&Sun);
     planets.push_back(&Earth);
+    planets.push_back(&Mars);
     // Sphere::set_kinematics(GLfloat vx, GLfloat vy, GLfloat vz, GLfloat ax, GLfloat ay, GLfloat az)
     Sun.set_kinematics(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
     Earth.set_kinematics(0.0f, 0.0f, 3.031f, 0.0f, 0.0f, 0.0f);
+    Mars.set_kinematics(0.0f, 0.0f, 4.031f, 0.0f, 0.0f, 0.0f);
     //init(); // Initialize OpenGL
     glutDisplayFunc(display);
     glutMouseFunc(handleMouse);
