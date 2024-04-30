@@ -3,7 +3,7 @@
 extern Camera appCamera; // Declare appCamera from another file
 void keyboard(unsigned char key, int x, int y)
 {
-    const float cameraSpeed = 0.5f;
+    const float cameraSpeed = 1.0f;
     const float cameraRotateSpeed = glm::radians(0.5f); // reduced rotation speed
     glm::vec3 eye = appCamera.GetEye();
     glm::vec3 lookAt = appCamera.GetLookAt();

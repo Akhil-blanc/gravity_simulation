@@ -12,7 +12,7 @@
 using namespace std;
 
 // GLfloat Rotation = 0.0f;
-// Sphere Universe(30.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+// Sphere Universe(400.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 // Sphere Sun(3.0f, 0.0f, 0.0f, 0.0f, 2.4f);
 // // Sphere Mercury("./assets/2k_earth_daymap.jpg", 0.3f, 4.0f, 0.0f, 0.0f, 5.4f);
 // Sphere Venus(0.9f, 7.0f, 0.0f, 0.0f, 8.2f);
@@ -29,15 +29,17 @@ void display();
 void drawEllipse(float a, float b, float beta);
 void drawAxis(float size);
 
-Camera appCamera(glm::vec3(0.0f, 15.0f, 125.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+Camera appCamera(glm::vec3(0.0f, 15.0f, 145.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 glm::vec2 lastMousePos(0.0f);
 vector<Sphere*> planets;
 
 //Sphere(GLfloat radius, GLfloat x, GLfloat y, GLfloat z, GLfloat mass)
 // Sphere Universe = Sphere(300, 0.0f, 0.0f, 0.0f, 0.0f);
 Sphere Sun = Sphere(30, 0.0f, 0.0f, 0.0f, 500);
-Sphere Earth = Sphere(20, 50.0f, 0.0f, 0.0f, 0.1033);
-Sphere Mars = Sphere(10, 25.0f, 0.0f, 0.0f, 0.5825);
+Sphere Mercury = Sphere(5, 10.0f, 0.0f, 0.0f, 0.4875);
+Sphere Earth = Sphere(10, 28.0f, 0.0f, 0.0f, 0.5825);
+Sphere Mars = Sphere(20, 50.0f, 0.0f, 0.0f, 0.5033);
+Sphere Jupiter = Sphere(40, 70.0f, 0.0f, 0.0f, 0.5033);
 
 void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -103,37 +105,52 @@ void display() {
     //               0.0, 0.0, 0.0,  // look at position
     //               0.0, 1.0, 0.0); // up direction
 
-    // gluLookAt(-5.0, 145.0, 0.0,  // eye position
+    // gluLookAt(-5.0, 180.0, 0.0,  // eye position
     //               0.0, 0.0, 0.0,  // look at position
     //               0.0, 0.0, -1.0); // up direction
-
+    // // Draw the plane
+    // glColor3f(0.5f, 0.5f, 0.5f); // Gray color
+    // glBegin(GL_QUADS);
+    // glVertex3f(-500.0f, -1.0f, -500.0f);
+    // glVertex3f(-500.0f, -1.0f, 500.0f);
+    // glVertex3f(500.0f, -1.0f, 500.0f);
+    // glVertex3f(500.0f, -1.0f, -500.0f);
+    // glEnd();
     
     for (Sphere* planet: planets)
     {
         if (planet!= &Sun) 
         {
             planet->draw(30, 30);  
-            planet->draw_trace();  
+            planet->draw_trace();
+            planet->draw_space_time_distortion(10);  
+
             glColor3f(1.0f, 1.0f, 1.0f);  
         }  
+        // planet->draw_space_time_distortion(30);
     }
 
     // Universe.draw(30, 30);
     // GLuint UniverseTexture;
     // loadTexture("../assets/space.jpg", UniverseTexture);
-    // draw_texturedobject_inner(UniverseTexture, Universe, 30, 30);
+    // draw_texturedobject_inner(UniverseTexture, Universe, 10, 10);
 
     
     glDisable(GL_LIGHTING);
-    // Sun.draw(30, 30);
-    GLuint SunTexture;
-    loadTexture("../assets/2k_sun.jpg", SunTexture);
-    draw_texturedobject(SunTexture, Sun, 30, 30);
+    Sun.draw(30, 30);
+    // GLuint SunTexture;
+    // loadTexture("../assets/2k_sun.jpg", SunTexture);
+    // draw_texturedobject(SunTexture, Sun, 30, 30);
     glEnable(GL_LIGHTING);
+    // GLuint MercuryTexture;
+    // loadTexture("../assets/2k_mercury.jpg", MercuryTexture);
+    // draw_texturedobject(MercuryTexture, Mercury, 30, 30);
+    // Mercury.draw(30, 30);
+
     // GLuint MarsTexture;
     // loadTexture("../assets/2k_mars.jpg", MarsTexture);
     // draw_texturedobject(MarsTexture, Mars, 30, 30);
-    
+    // Mars.draw(30, 30);
     // GLuint EarthTexture;
     // loadTexture("../assets/2k_earth_daymap.jpg", EarthTexture);
     // draw_texturedobject(EarthTexture, Earth, 30, 30);
@@ -181,12 +198,17 @@ int main(int argc, char** argv) {
     glutInitWindowSize(1920, 1080);
     glutCreateWindow("Gravity Simulation");
     planets.push_back(&Sun);
+    planets.push_back(&Mercury);
     planets.push_back(&Earth);
     planets.push_back(&Mars);
+    // planets.push_back(&Jupiter);
     // Sphere::set_kinematics(GLfloat vx, GLfloat vy, GLfloat vz, GLfloat ax, GLfloat ay, GLfloat az)
     Sun.set_kinematics(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-    Earth.set_kinematics(0.0f, 0.0f, 3.031f, 0.0f, 0.0f, 0.0f);
-    Mars.set_kinematics(0.0f, 0.0f, 4.031f, 0.0f, 0.0f, 0.0f);
+    Mercury.set_kinematics(0.0f, 0.0f, 3.031f, 0.0f, 0.0f, 0.0f);
+    Earth.set_kinematics(0.0f, 0.0f, 4.031f, 0.0f, 0.0f, 0.0f);
+    Mars.set_kinematics(0.0f, 0.0f, 3.031f, 0.0f, 0.0f, 0.0f);
+    Jupiter.set_kinematics(0.0f, 0.0f, 2.031f, 0.0f, 0.0f, 0.0f);
+
      // Initialize OpenGL
      init();
     glutDisplayFunc(display);

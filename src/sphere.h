@@ -31,6 +31,7 @@ public:
     void draw_inner(GLint slices, GLint stacks);
     void update_position(vector<Sphere*>& spheres);
     void draw_trace();
+    void draw_space_time_distortion(GLint resolution);
 };
 
 #endif // SPHERE_H
