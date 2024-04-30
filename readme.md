@@ -10,7 +10,7 @@ g++  main.cpp sphere.cpp mouseHandler.cpp -lGL -lGLU -lglut -lSOIL
 -----------------
 ## Stuff to be implemented
 - [X] Sphere class to render as many planets as possible
-- [ ] Load texture for planets (either add in sphere class or separately)
+- [X] Load texture for planets Texture loading is done in main.cpp)
 - [ ] Texture for space (create a sphere that is very large, covers the scene i.e, all planets and camera are inside the bigger sphere),(now add texture to internal surface)
 - [X] Lighting with attenuation 
 - [ ] Test lighting with different object textures
