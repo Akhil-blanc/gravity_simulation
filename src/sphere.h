@@ -21,6 +21,7 @@ public:
     
     Sphere(GLfloat radius, GLfloat x, GLfloat y, GLfloat z, GLfloat density);
     void draw(GLint slices, GLint stacks);
+    void draw_inner(GLint slices, GLint stacks);
 };
 
 #endif // SPHERE_H

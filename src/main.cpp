@@ -5,9 +5,11 @@
 #include "sphere.h"
 #include "mouseHandler.h"
 #include "LightSource.h"
+#include "texture.h"
 using namespace std;
 
 GLfloat Rotation = 0.0f;
+Sphere Universe(30.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 Sphere Sun(3.0f, 0.0f, 0.0f, 0.0f, 2.4f);
 // Sphere Mercury("./assets/2k_earth_daymap.jpg", 0.3f, 4.0f, 0.0f, 0.0f, 5.4f);
 Sphere Venus(0.9f, 7.0f, 0.0f, 0.0f, 8.2f);
@@ -24,30 +26,6 @@ void display();
 void drawEllipse(float a, float b, float beta);
 void drawAxis(float size);
 
-
-void loadTexture(const char* filename, GLuint &objectTexture) {
-    objectTexture = SOIL_load_OGL_texture(
-        filename,
-        SOIL_LOAD_AUTO,
-        SOIL_CREATE_NEW_ID,
-        SOIL_FLAG_INVERT_Y
-    );
-
-    if (!objectTexture) {
-        std::cerr << "Error loading texture: " << SOIL_last_result() << std::endl;
-    }
-}
-
-void draw_texturedobject(GLuint objectTexture, Sphere object, GLint slices, GLint stacks) {
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, objectTexture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    object.draw(slices, stacks);
-    glDisable(GL_TEXTURE_2D);
-}
 
 void update_planet_position(Sphere &planet, Sphere &sun, float a, float b, float beta) {
     float distance = sqrt(pow(planet.x - sun.x, 2) + pow(planet.y - sun.y, 2) + pow(planet.z - sun.z, 2));
@@ -164,11 +142,16 @@ void display() {
     //               0.0, 0.0, -1.0); // up direction
 
 
+    // Universe.draw(30, 30);
+    GLuint UniverseTexture;
+    loadTexture("../assets/space.jpg", UniverseTexture);
+    draw_texturedobject_inner(UniverseTexture, Universe, 30, 30);
 
 
+    // Sun.draw(30, 30);
     GLuint SunTexture;
     loadTexture("../assets/2k_sun.jpg", SunTexture);
-    draw_texturedobject(SunTexture, Sun, 100, 100);
+    draw_texturedobject(SunTexture, Sun, 30, 30);
 
     glPushMatrix(); // Save the current matrix
     glRotatef(Rotation, 0.0f, 0.0f, 0.0f); // Rotate 
@@ -180,10 +163,10 @@ void display() {
     // glRotatef(Rotation, 0.0f, 1.0f, 0.0f); // Rotate
     update_planet_position(Venus, Sun, a+3, b+1, beta+2.0f * M_PI / 180.0f);
      
-    GLuint VenusTexture;
-    loadTexture("../assets/2k_earth_daymap.jpg", VenusTexture);
-    draw_texturedobject(VenusTexture, Venus, 30, 30);
-    glPopMatrix(); // Restore the current matrix
+    // GLuint VenusTexture;
+    // loadTexture("../assets/2k_earth_daymap.jpg", VenusTexture);
+    // draw_texturedobject(VenusTexture, Venus, 30, 30);
+    // glPopMatrix(); // Restore the current matrix
     
     glPushMatrix(); // Save the current matrix
     drawEllipse(a, b, beta);
@@ -191,8 +174,10 @@ void display() {
     update_planet_position(Earth, Sun, a, b, beta);
     
     GLuint EarthTexture;
-    loadTexture("../assets/2k_stars_milky_way.jpg", EarthTexture);
-    draw_texturedobject(EarthTexture, Earth, 100, 100);
+
+    loadTexture("../assets/2k_earth_daymap.jpg", EarthTexture);
+    draw_texturedobject(EarthTexture, Earth, 30, 30);
+    Earth.draw(30, 30);
 
     glPopMatrix(); // Restore the current matrix
     glFlush();
