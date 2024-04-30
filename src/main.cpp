@@ -5,8 +5,10 @@
 #include <vector>
 #include "sphere.h"
 #include "mouseHandler.h"
+#include "keyboardHandler.h"
 #include "LightSource.h"
 #include "texture.h"
+
 using namespace std;
 
 // GLfloat Rotation = 0.0f;
@@ -27,54 +29,23 @@ void display();
 void drawEllipse(float a, float b, float beta);
 void drawAxis(float size);
 
-
+Camera appCamera(glm::vec3(0.0f, 15.0f, 125.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+glm::vec2 lastMousePos(0.0f);
 vector<Sphere*> planets;
 
-// Sphere(GLfloat radius, GLfloat x, GLfloat y, GLfloat z, GLfloat mass)
+//Sphere(GLfloat radius, GLfloat x, GLfloat y, GLfloat z, GLfloat mass)
+// Sphere Universe = Sphere(300, 0.0f, 0.0f, 0.0f, 0.0f);
 Sphere Sun = Sphere(30, 0.0f, 0.0f, 0.0f, 500);
 Sphere Earth = Sphere(20, 50.0f, 0.0f, 0.0f, 0.1033);
 Sphere Mars = Sphere(10, 25.0f, 0.0f, 0.0f, 0.5825);
 
-// void update_planet_position(Sphere &planet, Sphere &sun, float a, float b, float beta) {
-//     float distance = sqrt(pow(planet.x - sun.x, 2) + pow(planet.y - sun.y, 2) + pow(planet.z - sun.z, 2));
-//     float force = G * planet.mass * sun.mass / pow(distance, 2);
-//     float acceleration = force / planet.mass;
-//     float vx = acceleration * (sun.x - planet.x) / distance;
-//     float vy = acceleration * (sun.y - planet.y) / distance;
-//     float vz = acceleration * (sun.z - planet.z) / distance;
-//     planet.vx += vx;
-//     planet.vy += vy;
-//     planet.vz += vz;
-//     angle += 5.0f * (acceleration);
-
-//     if (angle > 2 * 3.14159265359) // Reset angle to keep object moving in loop
-//         angle -= 2 * 3.14159265359;
-//     planet.x = a * cos(angle) * cos(beta);
-//     planet.y = a * cos(angle) * sin(beta);
-//     planet.z = b * sin(angle);
-// }
-
-void drawEllipse(float a, float b, float beta) {
-    glColor3f(1.0f, 1.0f, 1.0f); // Set color to white
-
-    glBegin(GL_LINE_LOOP);
-    for (int theta = 0; theta <= 360; theta++) {
-        float radians = theta * M_PI / 180.0f;
-        float x = a * cos(radians) * cos(beta);
-        float y = a * cos(radians) * sin(beta);
-        float z = b * sin(radians);
-        glVertex3f(x, y, z);
-    }
-    glEnd();
-}
-
 void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    // glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST);
 
-    // glEnable(GL_LIGHTING);
-    // glEnable(GL_LIGHT0);
-    init();
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+    // init();
     
     // Define light properties
     GLfloat light_position[] = { 0.0, 0.0, 0.0, 1.0 };
@@ -110,18 +81,22 @@ void display() {
     
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(45.0f, static_cast<float>(width) / static_cast<float>(height), 0.1f, 200.0f);
+    gluPerspective(45.0f, static_cast<float>(width) / static_cast<float>(height), 0.1f, 1000.0f);
     
     glMatrixMode(GL_MODELVIEW);
     
     glLoadIdentity();
-    glTranslatef(0.0f, 0.0f, -cameraDistance);
-    glRotatef(cameraAngleX, 1.0f, 0.0f, 0.0f);
-    glRotatef(cameraAngleY, 0.0f, 1.0f, 0.0f);
+    glm::mat4 viewMatrix = appCamera.GetViewMatrix();
+    glMultMatrixf(glm::value_ptr(viewMatrix));
 
-    gluLookAt(0.0, 15.0, 125,  // eye position
-                  0.0, 0.0, 0.0,  // look at position
-                  0.0, 1.0, 0.0); // up direction
+
+    // glTranslatef(0.0f, 0.0f, -cameraDistance);
+    // glRotatef(cameraAngleX, 1.0f, 0.0f, 0.0f);
+    // glRotatef(cameraAngleY, 0.0f, 1.0f, 0.0f);
+
+    // gluLookAt(0.0, 15.0, 125,  // eye position
+    //               0.0, 0.0, 0.0,  // look at position
+    //               0.0, 1.0, 0.0); // up direction
 
     // gluLookAt(-5.0, 145.0, 0.0,  // eye position
     //               0.0, 0.0, 0.0,  // look at position
@@ -131,23 +106,22 @@ void display() {
     for (Sphere* planet: planets)
     {
         planet->draw(30, 30);  
-        glDisable(GL_DEPTH_TEST);  
         planet->draw_trace();  
-        glEnable(GL_DEPTH_TEST);
         glColor3f(1.0f, 1.0f, 1.0f);  
     }
 
-    // // Universe.draw(30, 30);
+    // Universe.draw(30, 30);
     // GLuint UniverseTexture;
     // loadTexture("../assets/space.jpg", UniverseTexture);
     // draw_texturedobject_inner(UniverseTexture, Universe, 30, 30);
 
-
-    // // Sun.draw(30, 30);
     // GLuint SunTexture;
     // loadTexture("../assets/2k_sun.jpg", SunTexture);
     // draw_texturedobject(SunTexture, Sun, 30, 30);
 
+    // GLuint MarsTexture;
+    // loadTexture("../assets/2k_mars.jpg", MarsTexture);
+    // draw_texturedobject(MarsTexture, Mars, 30, 30);
     
     // GLuint EarthTexture;
     // loadTexture("../assets/2k_earth_daymap.jpg", EarthTexture);
@@ -194,7 +168,7 @@ int main(int argc, char** argv) {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(1920, 1080);
-    glutCreateWindow("Textured Sphere");
+    glutCreateWindow("Gravity Simulation");
     planets.push_back(&Sun);
     planets.push_back(&Earth);
     planets.push_back(&Mars);
@@ -202,10 +176,11 @@ int main(int argc, char** argv) {
     Sun.set_kinematics(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
     Earth.set_kinematics(0.0f, 0.0f, 3.031f, 0.0f, 0.0f, 0.0f);
     Mars.set_kinematics(0.0f, 0.0f, 4.031f, 0.0f, 0.0f, 0.0f);
-    //init(); // Initialize OpenGL
+    init(); // Initialize OpenGL
     glutDisplayFunc(display);
-    glutMouseFunc(handleMouse);
-    glutMotionFunc(handleMouseMove);
+    glutMouseFunc(mouse);
+    glutMotionFunc(motion);
+    glutKeyboardFunc(keyboard);
     glutTimerFunc(1000/60, update, 0); // Start the update loop
     glutMainLoop();
     return 0;
