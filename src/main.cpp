@@ -49,28 +49,33 @@ void display() {
     
     // Define light properties
     GLfloat light_position[] = { 0.0, 0.0, 0.0, 1.0 };
-    GLfloat light_diffuse[] = { 1.0, 1.0, 0.0, 1.0 }; // Yellow light
+    GLfloat light_ambient[] = { 1.0f, 0.78f, 0.78f, 1.0f };
+    GLfloat light_diffuse[] = { 1.0f, 0.78f, 0.78f, 1.0f }; // Warm yellow color
+    GLfloat light_specular[] = { 1.0f, 0.78f, 0.78f, 1.0f }; // Warm yellow color
+
     glLightfv(GL_LIGHT0, GL_POSITION, light_position);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
 
     // Set light attenuation
-    GLfloat constantAttenuation = 0.0;
+    GLfloat constantAttenuation = 0.005f;
     GLfloat linearAttenuation = 0.001f;
-    GLfloat quadraticAttenuation = 0.001f;
+    GLfloat quadraticAttenuation = 0.0005f;
     glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, constantAttenuation);
     glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, linearAttenuation);
     glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, quadraticAttenuation);
 
 
     // Define material properties for the Sun
-    GLfloat mat_ambient[] = { 0.0, 0.0, 0.0, 1.0 };
-    GLfloat mat_diffuse[] = { 1.0, 1.0, 0.0, 1.0 }; // Yellow color
-    GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-    GLfloat mat_shininess[] = { 50.0 };
+    GLfloat mat_ambient[] = { 0.2f, 0.2f, 0.2f, 1.0f }; // Ambient reflection
+    GLfloat mat_diffuse[] = { 0.8f, 0.8f, 0.0f, 1.0f }; // Diffuse reflection (yellow color)
+    GLfloat mat_specular[] = { 1.0f, 1.0f, 1.0f, 1.0f }; // Specular reflection (white)
+    GLfloat mat_shininess[] = { 100.0f }; // Shininess (controls the size of the specular highlight)
+
     glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
     glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
     glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
     glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
+
 
     glMatrixMode(GL_PROJECTION);
     int width = glutGet(GLUT_WINDOW_WIDTH);
@@ -102,12 +107,15 @@ void display() {
     //               0.0, 0.0, 0.0,  // look at position
     //               0.0, 0.0, -1.0); // up direction
 
-
+    
     for (Sphere* planet: planets)
     {
-        planet->draw(30, 30);  
-        planet->draw_trace();  
-        glColor3f(1.0f, 1.0f, 1.0f);  
+        if (planet!= &Sun) 
+        {
+            planet->draw(30, 30);  
+            planet->draw_trace();  
+            glColor3f(1.0f, 1.0f, 1.0f);  
+        }  
     }
 
     // Universe.draw(30, 30);
@@ -115,10 +123,13 @@ void display() {
     // loadTexture("../assets/space.jpg", UniverseTexture);
     // draw_texturedobject_inner(UniverseTexture, Universe, 30, 30);
 
-    // GLuint SunTexture;
-    // loadTexture("../assets/2k_sun.jpg", SunTexture);
-    // draw_texturedobject(SunTexture, Sun, 30, 30);
-
+    
+    glDisable(GL_LIGHTING);
+    // Sun.draw(30, 30);
+    GLuint SunTexture;
+    loadTexture("../assets/2k_sun.jpg", SunTexture);
+    draw_texturedobject(SunTexture, Sun, 30, 30);
+    glEnable(GL_LIGHTING);
     // GLuint MarsTexture;
     // loadTexture("../assets/2k_mars.jpg", MarsTexture);
     // draw_texturedobject(MarsTexture, Mars, 30, 30);
@@ -176,7 +187,8 @@ int main(int argc, char** argv) {
     Sun.set_kinematics(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
     Earth.set_kinematics(0.0f, 0.0f, 3.031f, 0.0f, 0.0f, 0.0f);
     Mars.set_kinematics(0.0f, 0.0f, 4.031f, 0.0f, 0.0f, 0.0f);
-    init(); // Initialize OpenGL
+     // Initialize OpenGL
+     init();
     glutDisplayFunc(display);
     glutMouseFunc(mouse);
     glutMotionFunc(motion);
